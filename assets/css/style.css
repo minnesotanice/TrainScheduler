@@ -36,6 +36,12 @@ body {
     background-color: black;
     color: white;
     font-family: 'Times New Roman', Times, serif;
+    font-size: 18px;
+}
+
+h3 {
+    font-family: 'Zilla Slab', serif;
+    font-size: 1.8rem;
 }
 
 .jumbotron {
@@ -62,6 +68,7 @@ body {
 }
 
 .container {
+    border-radius: 2em 1em 4em / 0.5em 3em;
     -moz-box-shadow: inset 0 0 10px #000000;
     -webkit-box-shadow: inset 0 0 10px #000000;
     box-shadow: inset 0 0 10px #000000;

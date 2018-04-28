@@ -66,7 +66,7 @@ $("#add-train-btn").on("click", function (event) {
   var trainMinutesTill = trainFreq - trainRemainder;
 
 
-  // console.log("///////////////////////////////////////////////");
+  console.log("///////////////////////////////////////////////");
 
   // console.log("trainName is " + trainName);
 
@@ -96,7 +96,7 @@ $("#add-train-btn").on("click", function (event) {
 
   // console.log("trainMinAway is " + trainMinAway);
 
-  // console.log("///////////////////////////////////////////////");
+  console.log("///////////////////////////////////////////////");
 
 
   // create tempoary object to hold submitted data
@@ -104,9 +104,9 @@ $("#add-train-btn").on("click", function (event) {
     name: trainName,
     destination: trainDest,
     first: trainFirstTime,
-    frequency: trainFreq,
-    arrival: trainNext,
-    minutes: trainMinutesTill
+    frequency: trainFreq // ,
+    // arrival: trainNext,
+    // minutes: trainMinutesTill
   };
 
   // push to database
@@ -131,6 +131,8 @@ $("#add-train-btn").on("click", function (event) {
 
 });
 
+
+
 // ADD ROW TO 'CURRENT TRAIN SCHEDULE' TABLE WITH DATA RETRIEVED FROM THE MOST RECENT RECORD OF THE DATABASE
 database.ref().on("child_added", function (childSnapshot, prevChildKey) {
 
@@ -141,18 +143,117 @@ database.ref().on("child_added", function (childSnapshot, prevChildKey) {
   var trainDest = childSnapshot.val().destination;
   var trainFirstTime = childSnapshot.val().first;
   var trainFreq = childSnapshot.val().frequency;
-  var trainNext = childSnapshot.val().arrival;
-  var trainMinutesTill = childSnapshot.val().minutes;
+  // var trainNext = childSnapshot.val().arrival;
+  // var trainMinutesTill = childSnapshot.val().minutes;
 
+  console.log("///////////////////////////////////////////////");
   // console the variables to check for accuracy
   // console.log(trainName);
   // console.log(trainDest);
   // console.log(trainFirstTime);
-  // console.log(trainFreq);
+  console.log("trainFreq is ", trainFreq);
   // console.log(trainNext);
   // console.log(trainMinutesTill);
 
+  console.log("this is trainFirstTime " + trainFirstTime);
+
+  // Current Time
+  // var currentTime = moment();
+
+  // research subtracting one year a little more
+  var trainFirstTimeConverted = moment(trainFirstTime, "HH:mm").subtract(1, "years");
+
+  // Difference between the times
+  var diffTime = moment().diff(moment(trainFirstTimeConverted), "minutes");
+  console.log("diffTime is ", diffTime);
+
+  // Time apart (remainder)
+  var trainRemainder = diffTime % trainFreq;
+
+  // Minute Until Train
+  var trainMinutesTill = trainFreq - trainRemainder;
+
+  // Next Train Calculation
+  var trainNext = moment().add(trainMinutesTill, "minutes");
+
+  // Next Train Format
+  var formatTrainNext = moment(trainNext).format("hh:mm");
+
+  console.log("trainRemainder is ", trainRemainder);
+
+  console.log("new calculation for arrival is: " + formatTrainNext);
+
+  console.log("new calculation for minutes is: " + trainMinutesTill);
+
+  console.log("///////////////////////////////////////////////");
+
   // add data into html table
   $("#train-table > tbody").append("<tr><td>" + trainName + "</td><td>" + trainDest + "</td><td>" +
-    trainFreq + "</td><td>" + trainNext + "</td><td>" + trainMinutesTill + "</td></tr>");
+    trainFreq + "</td><td>" + formatTrainNext + "</td><td>" + trainMinutesTill + "</td></tr>");
 });
+
+
+setInterval(function () {
+  console.log("testing setInterval");
+  $("#train-table > tbody").empty();
+  database.ref().on("child_added", function (childSnapshot) {
+    console.log("this is the childSnapshot ", childSnapshot.val());
+
+
+    // console.log(childSnapshot.val());
+
+    // break down information retrieved from database so each value has its own variable
+    var trainName = childSnapshot.val().name;
+    var trainDest = childSnapshot.val().destination;
+    var trainFirstTime = childSnapshot.val().first;
+    var trainFreq = childSnapshot.val().frequency;
+    // var trainNext = childSnapshot.val().arrival;
+    // var trainMinutesTill = childSnapshot.val().minutes;
+
+    console.log("///////////////////////////////////////////////");
+    // console the variables to check for accuracy
+    // console.log(trainName);
+    // console.log(trainDest);
+    // console.log(trainFirstTime);
+    console.log("trainFreq is ", trainFreq);
+    // console.log(trainNext);
+    // console.log(trainMinutesTill);
+
+    console.log("this is trainFirstTime " + trainFirstTime);
+
+    // Current Time
+    // var currentTime = moment();
+
+    // research subtracting one year a little more
+    var trainFirstTimeConverted = moment(trainFirstTime, "HH:mm").subtract(1, "years");
+
+    // Difference between the times
+    var diffTime = moment().diff(moment(trainFirstTimeConverted), "minutes");
+    console.log("diffTime is ", diffTime);
+
+    // Time apart (remainder)
+    var trainRemainder = diffTime % trainFreq;
+
+    // Minute Until Train
+    var trainMinutesTill = trainFreq - trainRemainder;
+
+    // Next Train Calculation
+    var trainNext = moment().add(trainMinutesTill, "minutes");
+
+    // Next Train Format
+    var formatTrainNext = moment(trainNext).format("hh:mm");
+
+    console.log("trainRemainder is ", trainRemainder);
+
+    console.log("new calculation for arrival is: " + formatTrainNext);
+
+    console.log("new calculation for minutes is: " + trainMinutesTill);
+
+    console.log("///////////////////////////////////////////////");
+
+    // add data into html table
+    $("#train-table > tbody").append("<tr><td>" + trainName + "</td><td>" + trainDest + "</td><td>" +
+      trainFreq + "</td><td>" + formatTrainNext + "</td><td>" + trainMinutesTill + "</td></tr>");
+
+  })
+}, 60000)
