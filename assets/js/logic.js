@@ -32,6 +32,7 @@ var currentTime = moment();
 
 
 // GET DATA FROM DATABASE / CALCULATE / POPULATE TABLE
+/* COULD NOT GET THIS TO WORK
 var printSchedule = function () {
 
   // break down information retrieved from database so each value has its own variable
@@ -62,8 +63,9 @@ var printSchedule = function () {
   $("#train-table > tbody").append("<tr><td>" + trainName + "</td><td>" + trainDest + "</td><td>" +
     trainFreq + "</td><td>" + formatTrainNext + "</td><td>" + trainMinutesTill + "</td></tr>");
 
-
 };
+*/
+
 
 
 // SUBMIT TRAIN INFORMATION
@@ -127,12 +129,41 @@ $("#add-train-btn").on("click", function (event) {
 });
 
 
+
 // ADD ROW TO 'CURRENT TRAIN SCHEDULE' TABLE WITH DATA RETRIEVED FROM THE MOST RECENT RECORD OF THE DATABASE
 database.ref().on("child_added", function (childSnapshot, prevChildKey) {
-  
-  // GET DATA FROM DATABASE / CALCULATE / POPULATE TABLE
-  printSchedule();
 
+  // COULD NOT GET THIS TO WORK
+  // printSchedule();
+
+  // break down information retrieved from database so each value has its own variable
+  var trainName = childSnapshot.val().name;
+  var trainDest = childSnapshot.val().destination;
+  var trainFirstTime = childSnapshot.val().first;
+  var trainFreq = childSnapshot.val().frequency;
+
+  // research subtracting one year a little more
+  var trainFirstTimeConverted = moment(trainFirstTime, "HH:mm").subtract(1, "years");
+
+  // Difference between the times
+  var diffTime = moment().diff(moment(trainFirstTimeConverted), "minutes");
+
+  // Time apart (remainder)
+  var trainRemainder = diffTime % trainFreq;
+
+  // Minute Until Train
+  var trainMinutesTill = trainFreq - trainRemainder;
+
+  // Next Train Calculation
+  var trainNext = moment().add(trainMinutesTill, "minutes");
+
+  // Next Train Format
+  var formatTrainNext = moment(trainNext).format("hh:mm");
+
+  // add data into html table
+  $("#train-table > tbody").append("<tr><td>" + trainName + "</td><td>" + trainDest + "</td><td>" +
+    trainFreq + "</td><td>" + formatTrainNext + "</td><td>" + trainMinutesTill + "</td></tr>");
+  
 });
 
 //REFRESH CURRENT TIMES EVERY MINUTE WITHOUT RELOADING PAGE
@@ -141,11 +172,40 @@ setInterval(function () {
   // EMPTY TABLE
   $("#train-table > tbody").empty();
 
-  
+  // GET DATA FROM DATABASE AND POPLATE TABLE WITH IT
+
   database.ref().on("child_added", function (childSnapshot) {
 
-    // GET DATA FROM DATABASE / CALCULATE / POPULATE TABLE
-    printSchedule();
+    // COULD NOT GET THIS TO WORK
+    // printSchedule();
+
+    // break down information retrieved from database so each value has its own variable
+    var trainName = childSnapshot.val().name;
+    var trainDest = childSnapshot.val().destination;
+    var trainFirstTime = childSnapshot.val().first;
+    var trainFreq = childSnapshot.val().frequency;
+
+    // research subtracting one year a little more
+    var trainFirstTimeConverted = moment(trainFirstTime, "HH:mm").subtract(1, "years");
+
+    // Difference between the times
+    var diffTime = moment().diff(moment(trainFirstTimeConverted), "minutes");
+
+    // Time apart (remainder)
+    var trainRemainder = diffTime % trainFreq;
+
+    // Minute Until Train
+    var trainMinutesTill = trainFreq - trainRemainder;
+
+    // Next Train Calculation
+    var trainNext = moment().add(trainMinutesTill, "minutes");
+
+    // Next Train Format
+    var formatTrainNext = moment(trainNext).format("hh:mm");
+
+    // add data into html table
+    $("#train-table > tbody").append("<tr><td>" + trainName + "</td><td>" + trainDest + "</td><td>" +
+      trainFreq + "</td><td>" + formatTrainNext + "</td><td>" + trainMinutesTill + "</td></tr>");
 
   })
 }, 60000)
